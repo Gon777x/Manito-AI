@@ -1,4 +1,5 @@
-clezimport streamlit as st  
+clez
+import streamlit as st  
 
 # Cargar y mostrar el logo
  # Ajusta el tamaño según necesites
