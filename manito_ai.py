@@ -1,4 +1,4 @@
-clez
+
 import streamlit as st  
 
 # Cargar y mostrar el logo
