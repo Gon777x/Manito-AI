@@ -64,7 +64,38 @@ if faqs:
     for id, pregunta, respuesta in faqs:
         with st.expander(f"**{pregunta}**"):
             st.write(respuesta)
+            
+            # --- Botón de edición para cada FAQ ---
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                if st.button("✏ Editar", key=f"editar_{id}"):
+                    # Mostrar formulario de edición
+                    new_pregunta = st.text_input("Pregunta del cliente", pregunta)
+                    new_respuesta = st.text_area("Respuesta", respuesta)
+                    
+                    if st.button("Guardar cambios", key=f"guardar_{id}"):
+                        cursor.execute("UPDATE faq SET pregunta = ?, respuesta = ? WHERE id = ?", (new_pregunta, new_respuesta, id))
+                        conn.commit()
+                        st.success("FAQ actualizada correctamente.")
+                        st.experimental_rerun()
+
 else:
     st.info("Aún no hay preguntas guardadas. ¡Empieza a agregar algunas!")
 
-# Nota: no cerramos conn para evitar errores en Streamlit
+# --- Función de respuesta humanizada si no se encuentra la pregunta ---
+def buscar_respuesta_similar(pregunta_usuario):
+    cursor.execute("SELECT pregunta, respuesta FROM faq")
+    faqs = cursor.fetchall()
+    
+    if not faqs:
+        return "Hola 👋. Todavía no tengo respuestas cargadas."
+
+    preguntas = [faq[0] for faq in faqs]
+    respuestas = [faq[1] for faq in faqs]
+
+    # Si no hay coincidencias exactas, respuesta cálida
+    if pregunta_usuario not in preguntas:
+        return f"Lo siento, no tengo la respuesta a esa pregunta. 😅 Pero voy a preguntar y te aviso pronto."
+
+    idx_mas_similar = preguntas.index(pregunta_usuario)
+    return respuestas[idx_mas_similar]
