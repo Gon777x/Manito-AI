@@ -92,7 +92,7 @@ if st.button("Guardar FAQ"):
         st.warning("❗ Completa los campos antes de guardar.")
 
 # --- Importar FAQs desde archivo con versión Mixta Inteligente ---
-st.subheader("📤 Importar FAQs con Detección Inteligente")
+st.subheader("📄 Importar FAQs con Detección Inteligente")
 archivo = st.file_uploader("Sube un archivo Word (.docx):", type=["docx"])
 
 if archivo:
@@ -122,16 +122,17 @@ if archivo:
 
         i += 1
 
-    # --- Previsualización con Corrección Visual ---
+    # --- Previsualización editable con Corrección Visual ---
     st.subheader("🖍️ Detección de FAQs (Versión Mixta Inteligente)")
 
     confirmados = []
     for idx, (tipo, texto) in enumerate(detectadas):
         color = 'red' if tipo == 'pregunta' else 'orange'
-        st.markdown(f"<div style='background-color:{color};padding:10px;border-radius:5px'>{texto}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background-color:{color};padding:10px;border-radius:5px'><b>{tipo.upper()}</b><br>{texto}</div>", unsafe_allow_html=True)
 
         nuevo_tipo = st.radio(f"Corregir este bloque:", ["pregunta", "respuesta"], index=0 if tipo=="pregunta" else 1, key=f"corregir_{idx}")
-        confirmados.append((nuevo_tipo, texto))
+        texto_editado = st.text_area("Editar texto:", value=texto, key=f"editar_{idx}")
+        confirmados.append((nuevo_tipo, texto_editado))
 
     if st.button("Guardar FAQs y Feedback"):
         guardados = 0
@@ -143,10 +144,10 @@ if archivo:
                     guardados += 1
 
         # Guardar feedback de patrones corregidos
-        for tipo_original, texto in detectadas:
-            tipo_corregido = [t for t, tx in confirmados if tx == texto][0]
+        for i, (tipo_original, texto_original) in enumerate(detectadas):
+            tipo_corregido, texto_editado = confirmados[i]
             if tipo_original != tipo_corregido:
-                cursor.execute("INSERT INTO patrones_feedback (tipo, patron) VALUES (?, ?)", (tipo_corregido, texto))
+                cursor.execute("INSERT INTO patrones_feedback (tipo, patron) VALUES (?, ?)", (tipo_corregido, texto_editado))
 
         conn.commit()
         st.success(f"✅ FAQs guardadas: {guardados}")

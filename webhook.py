@@ -4,7 +4,7 @@ import requests
 
 app = Flask(__name__)
 
-VERIFY_TOKEN = 'manito-token'  # Usá el mismo en Meta Developers
+VERIFY_TOKEN = 'MANITO_AI_301'  # Usá el mismo en Meta Developers
 PAGE_ACCESS_TOKEN = 'TU_TOKEN_PAGINA_DE_META'  # Cambialo por tu token real
 
 @app.route('/', methods=['GET'])
